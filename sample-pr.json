@@ -1,0 +1,31 @@
+{
+  "owner": "example",
+  "repo": "example-project",
+  "number": 123,
+  "htmlUrl": "https://github.com/example/example-project/pull/123",
+  "title": "Add a documented maintainer check",
+  "body": "Synthetic fixture used for offline tests. It is not a real repository or pull request.",
+  "author": "example-contributor",
+  "baseRef": "main",
+  "headRef": "maintainer-check",
+  "changedFiles": 2,
+  "additions": 18,
+  "deletions": 4,
+  "files": [
+    {
+      "filename": "src/check.js",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 4,
+      "changes": 18
+    },
+    {
+      "filename": "test/check.test.js",
+      "status": "added",
+      "additions": 4,
+      "deletions": 0,
+      "changes": 4
+    }
+  ],
+  "diff": "diff --git a/src/check.js b/src/check.js\n+new behavior\n-old behavior\ndiff --git a/test/check.test.js b/test/check.test.js\n+test behavior\n"
+}
