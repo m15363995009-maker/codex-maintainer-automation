@@ -11,6 +11,7 @@ This file is a factual record, not a marketing page. Add a row only after checki
 | Public users or pilot repositories | not yet recorded | not yet recorded | not yet recorded | Record consented repositories and exact workflow/comment URLs. |
 | Releases | 0 public releases | GitHub REST API `GET /repos/m15363995009-maker/codex-maintainer-automation/releases` | 2026-08-08 | No release has been published. |
 | CI runs | successful `CI` run verified | https://github.com/m15363995009-maker/codex-maintainer-automation/actions/runs/31250543142 | 2026-08-08 | Run for commit `d82532b`; this proves workflow execution, not project adoption. |
+| Contribution bounty | proposed; payment platform not configured | [`docs/contribution-bounty.md`](contribution-bounty.md) | 2026-08-08 | Not an active paid bounty; no payout or engagement promise is being claimed. |
 | Maintainer feedback | not yet collected | not yet recorded | not yet recorded | State method and date when collected. |
 
 Before using this ledger in an application, re-check every row and replace placeholders with primary, dated evidence. A missing value is preferable to a fabricated value.

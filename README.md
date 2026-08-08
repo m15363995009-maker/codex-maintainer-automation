@@ -62,11 +62,16 @@ Every PR review is advisory. Human maintainers remain responsible for tests, sec
 
 The repository records claims only when they have a dated source URL or command output. See [`docs/evidence-ledger.md`](docs/evidence-ledger.md) for the format. Empty or unknown fields are intentionally left unfilled; no project metric is inferred from repository creation.
 
+## Contribution bounty plan
+
+The project has a transparent, proposed contribution-bounty plan in [`docs/contribution-bounty.md`](docs/contribution-bounty.md). It is not an active paid bounty until an issue publishes the task, acceptance criteria, amount, funding source, and payout method. Stars and follows are never required for payment.
+
 ## Project documents
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — development and review rules.
 - [`SECURITY.md`](SECURITY.md) — threat boundary and reporting path.
 - [`docs/evidence-ledger.md`](docs/evidence-ledger.md) — factual usage and maintenance evidence.
+- [`docs/contribution-bounty.md`](docs/contribution-bounty.md) — proposed contribution-bounty rules and evidence requirements.
 - [`CHANGELOG.md`](CHANGELOG.md) — release history.
 
 ## License
