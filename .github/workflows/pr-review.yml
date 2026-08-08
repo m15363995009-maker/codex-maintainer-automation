@@ -1,0 +1,45 @@
+name: Pull request report
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted base branch only
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Generate advisory report from GitHub metadata
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          node bin/codex-maintainer.js
+          --pr ${{ github.event.pull_request.html_url }}
+          --mode heuristic
+          --dry-run
+          --out review.md
+
+      - name: Upload advisory report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-report-${{ github.event.pull_request.number }}
+          path: review.md
+          if-no-files-found: error

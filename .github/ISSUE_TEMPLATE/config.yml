@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/m15363995009-maker/codex-maintainer-automation/security/policy
+    about: Please use the security policy for vulnerabilities or exposed secrets.
