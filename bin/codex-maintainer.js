@@ -3,7 +3,8 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const packageJson = require("../package.json");
-const { fetchPullRequest } = require("../src/github");
+const { assertRepositoryAllowed, normalizeRepository } = require("../src/allowlist");
+const { fetchPullRequest, parsePullRequestUrl } = require("../src/github");
 const { buildCommentBody, upsertReviewComment } = require("../src/comment");
 const { formatReview, reviewPullRequest } = require("../src/review");
 
@@ -12,6 +13,7 @@ function printHelp() {
 
 Options:
   --pr <url>                    Read a live GitHub pull request
+  --allow-repo <owner/repo>     Allow a repository. Repeat for multiple repositories
   --fixture <file>              Read a local synthetic pull request fixture
   --mode auto|openai|heuristic  Review engine. Default: auto
   --out <file>                  Write Markdown output to a file
@@ -34,12 +36,22 @@ function requiredValue(argv, index, flag) {
 }
 
 function parseArgs(argv) {
-  const options = { mode: "auto", postComment: false, dryRun: false };
+  const options = {
+    mode: "auto",
+    postComment: false,
+    dryRun: false,
+    allowRepos: [],
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--help" || arg === "-h") options.help = true;
     else if (arg === "--version") options.version = true;
     else if (arg === "--pr") { options.pr = requiredValue(argv, index, "--pr"); index += 1; }
+    else if (arg === "--allow-repo") {
+      const repository = normalizeRepository(requiredValue(argv, index, "--allow-repo"));
+      if (!options.allowRepos.includes(repository)) options.allowRepos.push(repository);
+      index += 1;
+    }
     else if (arg === "--fixture") { options.fixture = requiredValue(argv, index, "--fixture"); index += 1; }
     else if (arg === "--mode") { options.mode = requiredValue(argv, index, "--mode"); index += 1; }
     else if (arg === "--out") { options.out = requiredValue(argv, index, "--out"); index += 1; }
@@ -70,6 +82,11 @@ async function main({
   if (options.version) { stdout.write(`${packageJson.version}\n`); return { action: "version" }; }
   if (!options.pr && !options.fixture) {
     throw new Error("Provide --pr https://github.com/owner/repo/pull/123 or --fixture <file>");
+  }
+
+  if (options.pr) {
+    const identity = parsePullRequestUrl(options.pr);
+    assertRepositoryAllowed(`${identity.owner}/${identity.repo}`, options.allowRepos);
   }
 
   const token = env.GITHUB_TOKEN || env.GH_TOKEN || "";

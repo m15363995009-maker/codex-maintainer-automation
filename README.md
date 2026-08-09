@@ -14,6 +14,7 @@ The project is not an OpenAI product and is not evidence of acceptance into any 
 
 - Node.js 20+ CLI: `codex-maintainer`.
 - Strict GitHub pull request URL validation and API retrieval of metadata, files, and diff.
+- Repeatable repository allowlist enforcement before any GitHub API request.
 - Deterministic heuristic review for offline use and smoke testing.
 - Optional OpenAI Responses API review through `OPENAI_API_KEY`.
 - Stable Markdown headings and an idempotent, explicitly enabled comment path.
@@ -34,9 +35,12 @@ node bin/codex-maintainer.js \
 
 node bin/codex-maintainer.js \
   --pr https://github.com/owner/repository/pull/123 \
+  --allow-repo owner/repository \
   --mode heuristic \
   --dry-run
 ```
+
+Use `--allow-repo owner/repository` to restrict live review to an approved repository. Repeat the flag to approve more than one repository. Matching is case-insensitive, invalid entries fail validation, and a disallowed target is rejected before the CLI makes a GitHub API request. Omitting the flag preserves the original unrestricted read behavior.
 
 To use the optional OpenAI engine, set `OPENAI_API_KEY` and choose `--mode openai`, or leave the default `--mode auto` so the CLI falls back to the heuristic engine when no key is configured or the API is unavailable.
 
@@ -50,7 +54,7 @@ node bin/codex-maintainer.js \
 
 The API key is read only from the environment. Do not put it in the repository, an issue, a PR body, or a fixture. The adapter sends `store: false`; this is a client setting, not a promise about every organization or account retention policy.
 
-To explicitly create or update the single marked PR comment, provide a GitHub token and use `--post-comment`. Read-only output is the default, and `--post-comment` cannot be combined with `--dry-run`.
+To explicitly create or update the single marked PR comment, provide a GitHub token and use `--post-comment`. Read-only output is the default, and `--post-comment` cannot be combined with `--dry-run`. For shared automation, pair `--post-comment` with `--allow-repo` so an unexpected URL cannot redirect the write to another repository.
 
 ## GitHub Action boundary
 
