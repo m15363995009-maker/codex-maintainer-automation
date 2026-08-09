@@ -1,6 +1,11 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
+const {
+  assertRepositoryAllowed,
+  isRepositoryAllowed,
+  normalizeRepository,
+} = require("../src/allowlist");
 const { requestOpenAIReview } = require("../src/openai");
 const { fetchPullRequest, parseDiffFiles, parsePullRequestUrl } = require("../src/github");
 const { REVIEW_MARKER, buildCommentBody, neutralizeMentions, upsertReviewComment } = require("../src/comment");
@@ -12,7 +17,7 @@ const {
   reviewPullRequest,
   validateReviewMarkdown,
 } = require("../src/review");
-const { parseArgs } = require("../bin/codex-maintainer");
+const { main, parseArgs } = require("../bin/codex-maintainer");
 
 function response(body, status = 200) {
   return new Response(typeof body === "string" ? body : JSON.stringify(body), {
@@ -212,6 +217,7 @@ test("CLI parsing keeps writes explicit", () => {
     mode: "auto",
     postComment: false,
     dryRun: true,
+    allowRepos: [],
     pr: "https://github.com/example/project/pull/1",
   });
   assert.equal(parseArgs(["--fixture", "fixtures/sample-pr.json"]).fixture, "fixtures/sample-pr.json");
@@ -219,4 +225,80 @@ test("CLI parsing keeps writes explicit", () => {
   assert.throws(() => parseArgs(["--post-comment", "--dry-run"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--fixture", "x", "--post-comment"]), /requires a live/);
   assert.throws(() => parseArgs(["--mode", "external"]), /must be one of/);
+});
+
+test("normalizes and validates repository allowlist entries", () => {
+  assert.equal(normalizeRepository("OpenAI/OpenAI-Node"), "openai/openai-node");
+  assert.equal(isRepositoryAllowed("OPENAI/openai-node", ["openai/openai-node"]), true);
+  assert.equal(isRepositoryAllowed("other/repository", []), true);
+  assert.throws(() => normalizeRepository("missing-repository"), /Expected owner\/repo/);
+  assert.throws(() => normalizeRepository("bad_owner/repository"), /Expected owner\/repo/);
+  assert.throws(
+    () => assertRepositoryAllowed("other/repository", ["openai/openai-node"]),
+    /is not allowed/,
+  );
+});
+
+test("parses repeatable repository allowlist entries without duplicates", () => {
+  const options = parseArgs([
+    "--pr", "https://github.com/OpenAI/OpenAI-Node/pull/1",
+    "--allow-repo", "openai/openai-node",
+    "--allow-repo", "OpenAI/OpenAI-Node",
+    "--allow-repo", "example/project",
+  ]);
+  assert.deepEqual(options.allowRepos, ["openai/openai-node", "example/project"]);
+});
+
+test("rejects a disallowed repository before any network request", async () => {
+  let networkCalls = 0;
+  await assert.rejects(
+    main({
+      argv: [
+        "--pr", "https://github.com/other/project/pull/1",
+        "--allow-repo", "example/project",
+        "--mode", "heuristic",
+        "--dry-run",
+      ],
+      fetchImpl: async () => {
+        networkCalls += 1;
+        throw new Error("network must not be called");
+      },
+      stdout: { write() {} },
+    }),
+    /is not allowed/,
+  );
+  assert.equal(networkCalls, 0);
+});
+
+test("allows a matching repository to proceed through live retrieval", async () => {
+  let networkCalls = 0;
+  let output = "";
+  const result = await main({
+    argv: [
+      "--pr", "https://github.com/Example/Project/pull/123",
+      "--allow-repo", "example/project",
+      "--mode", "heuristic",
+      "--dry-run",
+    ],
+    fetchImpl: async (url, options) => {
+      networkCalls += 1;
+      if (url.endsWith("/files?per_page=100")) return response(samplePull.files);
+      if (options.headers.Accept === "application/vnd.github.v3.diff") return response(samplePull.diff);
+      return response({
+        html_url: samplePull.htmlUrl,
+        title: samplePull.title,
+        body: samplePull.body,
+        user: { login: samplePull.author },
+        base: { ref: samplePull.baseRef },
+        head: { ref: samplePull.headRef },
+        changed_files: samplePull.changedFiles,
+        additions: samplePull.additions,
+        deletions: samplePull.deletions,
+      });
+    },
+    stdout: { write(value) { output += value; } },
+  });
+  assert.deepEqual(result, { action: "reviewed", engine: "heuristic" });
+  assert.equal(networkCalls, 3);
+  assert.match(output, /## Summary of changes/);
 });
