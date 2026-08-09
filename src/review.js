@@ -64,7 +64,7 @@ function validateReviewMarkdown(markdown) {
   if (missing.length) {
     return { ok: false, error: `Reviewer output is missing: ${missing.join(", ")}` };
   }
-  if (/##\s+(approval|approved|decision|merge)/i.test(markdown)) {
+  if (/^##\s+(?:approval|approved|decision|merge)(?:\s|$)/im.test(markdown)) {
     return { ok: false, error: "Reviewer output contains an approval or decision section" };
   }
   return { ok: true };

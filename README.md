@@ -6,7 +6,7 @@ The default engine is deterministic and runs without an API key. An optional Ope
 
 ## Current status
 
-Version `v0.1.0` establishes the project's first public GitHub release. It includes the tested CLI, repository allowlist, read-only report workflow, and Node.js 24-based GitHub Actions dependencies. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
+Version `v0.1.1` keeps the project's first public baseline and corrects generated decision-heading validation. It includes the tested CLI, repository allowlist, read-only report workflow, and Node.js 24-based GitHub Actions dependencies. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
 
 The project is not an OpenAI product and is not evidence of acceptance into any OpenAI program. Any application must use accurate repository and maintainer information.
 
