@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-08-09
+
+- fixed forbidden decision-heading validation so generated `Approval`, `Approved`, `Decision`, and `Merge` sections are rejected even when every required review section is present;
+- added regression coverage for the bypass and ordinary prose that mentions merging;
+- added CLI version output to the full release check.
+
 ## [0.1.0] - 2026-08-09
 
 First public release:
