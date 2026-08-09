@@ -8,6 +8,8 @@ The default engine is deterministic and runs without an API key. An optional Ope
 
 Version `v0.1.1` keeps the project's first public baseline and corrects generated decision-heading validation. It includes the tested CLI, repository allowlist, read-only report workflow, and Node.js 24-based GitHub Actions dependencies. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
 
+The CLI has one dated, public cross-project maintainer pilot on [`claude-builders-bounty` PR #6](https://github.com/m15363995009-maker/claude-builders-bounty/pull/6#issuecomment-5231633189). Both repositories have the same owner, so this is reproducible maintainer-workflow evidence, not external adoption.
+
 The project is not an OpenAI product and is not evidence of acceptance into any OpenAI program. Any application must use accurate repository and maintainer information.
 
 ## What is included
