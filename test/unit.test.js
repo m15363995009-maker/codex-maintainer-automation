@@ -7,7 +7,12 @@ const {
   normalizeRepository,
 } = require("../src/allowlist");
 const { requestOpenAIReview } = require("../src/openai");
-const { fetchPullRequest, parseDiffFiles, parsePullRequestUrl } = require("../src/github");
+const {
+  fetchPullRequest,
+  MAX_FILE_PAGES,
+  parseDiffFiles,
+  parsePullRequestUrl,
+} = require("../src/github");
 const { REVIEW_MARKER, buildCommentBody, neutralizeMentions, upsertReviewComment } = require("../src/comment");
 const {
   REQUIRED_HEADINGS,
@@ -112,6 +117,66 @@ test("fetches metadata and diff without executing pull-request code", async () =
   assert.equal(calls.length, 3);
   assert.ok(calls.every(({ options }) => options.headers.Authorization === "Bearer secret-token"));
   assert.ok(calls.some(({ options }) => options.headers.Accept === "application/vnd.github.v3.diff"));
+});
+
+test("paginates file metadata beyond the first 100 files", async () => {
+  const calls = [];
+  const firstPage = Array.from({ length: 100 }, (_, index) => ({
+    filename: `src/file-${index + 1}.js`,
+    status: "modified",
+    additions: 1,
+    deletions: 0,
+    changes: 1,
+  }));
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, options });
+    if (url.endsWith("/files?per_page=100")) return response(firstPage);
+    if (url.endsWith("/files?per_page=100&page=2")) {
+      return response([{ filename: "src/file-101.js", status: "added", additions: 2, deletions: 0, changes: 2 }]);
+    }
+    if (options.headers.Accept === "application/vnd.github.v3.diff") return response("");
+    return response({ changed_files: 101, additions: 102, deletions: 0 });
+  };
+
+  const pull = await fetchPullRequest("https://github.com/example/project/pull/123", {
+    token: "secret-token",
+    fetchImpl,
+    apiRoot: "https://api.example.test",
+  });
+
+  assert.equal(pull.files.length, 101);
+  assert.equal(pull.files.at(-1).filename, "src/file-101.js");
+  assert.equal(calls.filter(({ url }) => url.includes("/files?")).length, 2);
+  assert.ok(calls.every(({ options }) => options.headers.Authorization === "Bearer secret-token"));
+});
+
+test("bounds file pagination at GitHub's 3000-file response limit", async () => {
+  const fileUrls = [];
+  const fetchImpl = async (url, options) => {
+    if (url.includes("/files?")) {
+      fileUrls.push(url);
+      const pageMatch = url.match(/[?&]page=(\d+)/);
+      const page = pageMatch ? Number(pageMatch[1]) : 1;
+      return response(Array.from({ length: 100 }, (_, index) => ({
+        filename: `src/file-${((page - 1) * 100) + index + 1}.js`,
+        status: "modified",
+        additions: 1,
+        deletions: 0,
+        changes: 1,
+      })));
+    }
+    if (options.headers.Accept === "application/vnd.github.v3.diff") return response("");
+    return response({ changed_files: 4000, additions: 4000, deletions: 0 });
+  };
+
+  const pull = await fetchPullRequest("https://github.com/example/project/pull/123", {
+    fetchImpl,
+    apiRoot: "https://api.example.test",
+  });
+
+  assert.equal(fileUrls.length, MAX_FILE_PAGES);
+  assert.equal(pull.files.length, 3000);
+  assert.match(fileUrls.at(-1), /page=30$/);
 });
 
 test("review prompt treats pull-request content as untrusted evidence", () => {

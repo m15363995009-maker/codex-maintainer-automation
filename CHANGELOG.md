@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0] - 2026-08-12
+
+- paginated pull-request file metadata beyond the first 100 files, with the documented GitHub response limit of 3,000 files;
+- preserved authorization, timeout, and read-only behavior across every file page;
+- added regression coverage for a short final page and the 30-page bound;
+- added a sanitized, reproducible project-lifecycle maintenance fixture without private source material;
+- added CI, release, and license badges plus a truthful discovery call to action.
+
 ## [0.1.1] - 2026-08-09
 
 - fixed forbidden decision-heading validation so generated `Approval`, `Approved`, `Decision`, and `Merge` sections are rejected even when every required review section is present;
