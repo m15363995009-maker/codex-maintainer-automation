@@ -69,6 +69,12 @@ The API key is read only from the environment. Do not put it in the repository, 
 
 To explicitly create or update the single marked PR comment, provide a GitHub token and use `--post-comment`. Read-only output is the default, and `--post-comment` cannot be combined with `--dry-run`. For shared automation, pair `--post-comment` with `--allow-repo` so an unexpected URL cannot redirect the write to another repository.
 
+## Independent pilot
+
+Maintainers with a public pull request can follow the reproducible [independent pilot invitation](https://github.com/m15363995009-maker/codex-maintainer-automation/issues/16) and submit the `Pilot report` issue form. A Star is not requested or required; successful, failed, and negative results are all useful.
+
+Relationships to the maintainer must be disclosed. Same-owner alternate-account runs are recorded as self-tests, not third-party adoption. Do not include tokens, secrets, private source, or sensitive generated reports.
+
 ## GitHub Action boundary
 
 The included report workflow checks out only the base branch, reads the PR through GitHub's API, and runs the deterministic engine without a write-capable token or OpenAI secret. It is deliberately a report generator, not an auto-merge or auto-approval system. A maintainer can run the CLI manually when a comment is wanted.

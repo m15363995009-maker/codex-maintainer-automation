@@ -1,0 +1,97 @@
+name: Pilot report
+description: Report a real, reproducible trial of codex-maintainer-automation
+title: "pilot: "
+labels: [pilot]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report successful, failed, or negative results. A Star is not requested or required. Do not include tokens, secrets, private source, or sensitive generated reports.
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: Relationship to the maintainer
+      description: Same-owner alternate-account runs are self-tests, not third-party adoption.
+      options:
+        - Independent
+        - Same owner or alternate account
+        - Personal or family relationship
+        - Same organization or employer
+        - Sponsored or paid relationship
+        - Other disclosed relationship
+    validations:
+      required: true
+  - type: textarea
+    id: disclosure
+    attributes:
+      label: Relationship disclosure
+      description: Write "none" only when Independent is selected; otherwise explain the relationship briefly.
+    validations:
+      required: true
+  - type: input
+    id: operating_system
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 15, Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js version
+      placeholder: Output of node --version
+    validations:
+      required: true
+  - type: input
+    id: public_pr
+    attributes:
+      label: Public pull request URL
+      description: Optional. Omit it when sharing would expose private or sensitive information.
+  - type: dropdown
+    id: checks
+    attributes:
+      label: npm run check result
+      options:
+        - Passed
+        - Failed
+        - Not run
+    validations:
+      required: true
+  - type: dropdown
+    id: review
+    attributes:
+      label: Review command result
+      options:
+        - Passed
+        - Failed
+    validations:
+      required: true
+  - type: input
+    id: setup_time
+    attributes:
+      label: Approximate setup time
+      placeholder: 5 minutes
+    validations:
+      required: true
+  - type: textarea
+    id: usefulness
+    attributes:
+      label: Was the report useful?
+      description: Explain why or why not. Negative feedback is welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: One bug or improvement request
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I ran the commands myself and the information above is accurate.
+          required: true
+        - label: I did not include credentials, secrets, private source, or sensitive generated output.
+          required: true
