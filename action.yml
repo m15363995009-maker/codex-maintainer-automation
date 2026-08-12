@@ -1,0 +1,36 @@
+name: Codex Maintainer PR Review
+description: Generate a safe, read-only pull request review packet without executing contributor code.
+author: m15363995009-maker
+
+branding:
+  icon: git-pull-request
+  color: blue
+
+inputs:
+  github_token:
+    description: GitHub token used only to read pull request metadata and changed files.
+    required: false
+  pr_url:
+    description: Pull request URL. Defaults to the pull request that triggered the workflow.
+    required: false
+  mode:
+    description: Review engine, one of heuristic, auto, or openai.
+    required: false
+    default: heuristic
+  openai_api_key:
+    description: Optional OpenAI API key for auto or openai mode. Never required for heuristic mode.
+    required: false
+  output_file:
+    description: Markdown report path, relative to the workflow workspace unless absolute.
+    required: false
+    default: codex-maintainer-review.md
+
+outputs:
+  review_file:
+    description: Absolute path to the generated Markdown report.
+  engine:
+    description: Review engine that produced the report.
+
+runs:
+  using: node20
+  main: action/index.js

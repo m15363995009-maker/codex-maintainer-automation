@@ -15,6 +15,7 @@ Options:
   --pr <url>                    Read a live GitHub pull request
   --allow-repo <owner/repo>     Allow a repository. Repeat for multiple repositories
   --fixture <file>              Read a local synthetic pull request fixture
+  --demo                        Run the bundled synthetic pull request demo
   --mode auto|openai|heuristic  Review engine. Default: auto
   --out <file>                  Write Markdown output to a file
   --post-comment                Create or update one marked PR comment
@@ -53,6 +54,7 @@ function parseArgs(argv) {
       index += 1;
     }
     else if (arg === "--fixture") { options.fixture = requiredValue(argv, index, "--fixture"); index += 1; }
+    else if (arg === "--demo") options.demo = true;
     else if (arg === "--mode") { options.mode = requiredValue(argv, index, "--mode"); index += 1; }
     else if (arg === "--out") { options.out = requiredValue(argv, index, "--out"); index += 1; }
     else if (arg === "--post-comment") options.postComment = true;
@@ -63,11 +65,13 @@ function parseArgs(argv) {
   if (!["auto", "openai", "heuristic"].includes(options.mode)) {
     throw new Error("--mode must be one of: auto, openai, heuristic");
   }
-  if (options.pr && options.fixture) throw new Error("--pr and --fixture cannot be used together");
+  if ([options.pr, options.fixture, options.demo].filter(Boolean).length > 1) {
+    throw new Error("--pr, --fixture, and --demo cannot be used together");
+  }
   if (options.postComment && options.dryRun) {
     throw new Error("--post-comment and --dry-run cannot be used together");
   }
-  if (options.postComment && options.fixture) throw new Error("--post-comment requires a live --pr");
+  if (options.postComment && (options.fixture || options.demo)) throw new Error("--post-comment requires a live --pr");
   return options;
 }
 
@@ -80,8 +84,8 @@ async function main({
   const options = parseArgs(argv);
   if (options.help) { printHelp(); return { action: "help" }; }
   if (options.version) { stdout.write(`${packageJson.version}\n`); return { action: "version" }; }
-  if (!options.pr && !options.fixture) {
-    throw new Error("Provide --pr https://github.com/owner/repo/pull/123 or --fixture <file>");
+  if (!options.pr && !options.fixture && !options.demo) {
+    throw new Error("Provide --pr https://github.com/owner/repo/pull/123, --fixture <file>, or --demo");
   }
 
   if (options.pr) {
@@ -93,8 +97,10 @@ async function main({
   if (options.postComment && !token) throw new Error("--post-comment requires GITHUB_TOKEN or GH_TOKEN");
 
   let pullRequest;
-  if (options.fixture) {
-    const fixturePath = path.resolve(options.fixture);
+  if (options.fixture || options.demo) {
+    const fixturePath = options.demo
+      ? path.resolve(__dirname, "..", "fixtures", "sample-pr.json")
+      : path.resolve(options.fixture);
     pullRequest = JSON.parse(await fs.readFile(fixturePath, "utf8"));
   } else {
     pullRequest = await fetchPullRequest(options.pr, { token, fetchImpl });

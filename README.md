@@ -1,5 +1,7 @@
 # codex-maintainer-automation
 
+![Codex Maintainer Automation social preview](https://raw.githubusercontent.com/m15363995009-maker/codex-maintainer-automation/main/docs/assets/social-preview.png)
+
 [![CI](https://github.com/m15363995009-maker/codex-maintainer-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/m15363995009-maker/codex-maintainer-automation/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/m15363995009-maker/codex-maintainer-automation)](https://github.com/m15363995009-maker/codex-maintainer-automation/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -10,7 +12,7 @@ The default engine is deterministic and runs without an API key. An optional Ope
 
 ## Current status
 
-Version `v0.2.0` retrieves file metadata across paginated GitHub responses, up to GitHub's documented 3,000-file limit. It also adds a sanitized project-lifecycle fixture that demonstrates review of workflow-policy changes without publishing private project material. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
+Version `v0.3.0` adds a Marketplace-compatible, dependency-free JavaScript action and a publish-ready npm package while preserving the documented 3,000-file GitHub response limit. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
 
 The CLI has one dated, public cross-project maintainer pilot on [`claude-builders-bounty` PR #6](https://github.com/m15363995009-maker/claude-builders-bounty/pull/6#issuecomment-5231633189). Both repositories have the same owner, so this is reproducible maintainer-workflow evidence, not external adoption.
 
@@ -28,6 +30,33 @@ The project is not an OpenAI product and is not evidence of acceptance into any 
 - Tests with injected HTTP clients; no pull-request code is executed.
 - A read-only GitHub Action that runs the heuristic report from trusted base-branch code.
 - A sanitized project-lifecycle maintenance fixture with explicit privacy boundaries.
+
+## Use as a GitHub Action
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: read
+
+steps:
+  - name: Generate read-only PR review
+    uses: m15363995009-maker/codex-maintainer-automation@v0.3.0
+    with:
+      github_token: ${{ github.token }}
+```
+
+The action needs no checkout step and no API key in its default heuristic mode. The Markdown report appears in the workflow summary. See the complete [Marketplace quickstart](docs/marketplace-quickstart.md), including artifact upload and optional OpenAI mode.
+
+## Use as an npm CLI
+
+After the npm release, run a local fixture without a permanent install:
+
+```bash
+npx codex-maintainer-automation@0.3.0 \
+  --demo \
+  --mode heuristic \
+  --dry-run
+```
 
 ## Local use
 
@@ -77,7 +106,7 @@ Relationships to the maintainer must be disclosed. Same-owner alternate-account 
 
 ## GitHub Action boundary
 
-The included report workflow checks out only the base branch, reads the PR through GitHub's API, and runs the deterministic engine without a write-capable token or OpenAI secret. It is deliberately a report generator, not an auto-merge or auto-approval system. A maintainer can run the CLI manually when a comment is wanted.
+The Marketplace action reads the PR through GitHub's API, runs the deterministic engine without a write-capable token or OpenAI secret, and always enables dry-run mode. It does not check out or execute contributor-controlled code. It is deliberately a report generator, not an auto-merge or auto-approval system. A maintainer can run the CLI manually when a comment is wanted.
 
 Every PR review is advisory. Human maintainers remain responsible for tests, security decisions, approvals, merges, and releases.
 
@@ -101,6 +130,7 @@ If the tool saves you review time, an authentic Star helps other maintainers dis
 - [`SECURITY.md`](SECURITY.md) — threat boundary and reporting path.
 - [`docs/evidence-ledger.md`](docs/evidence-ledger.md) — factual usage and maintenance evidence.
 - [`docs/contribution-bounty.md`](docs/contribution-bounty.md) — proposed contribution-bounty rules and evidence requirements.
+- [`docs/marketplace-quickstart.md`](docs/marketplace-quickstart.md) — copyable Action setup and security boundary.
 - [`CHANGELOG.md`](CHANGELOG.md) — release history.
 
 ## License
