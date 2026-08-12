@@ -291,10 +291,22 @@ test("CLI parsing keeps writes explicit", () => {
     pr: "https://github.com/example/project/pull/1",
   });
   assert.equal(parseArgs(["--fixture", "fixtures/sample-pr.json"]).fixture, "fixtures/sample-pr.json");
+  assert.equal(parseArgs(["--demo"]).demo, true);
   assert.throws(() => parseArgs(["--pr", "x", "--fixture", "y"]), /cannot be used together/);
+  assert.throws(() => parseArgs(["--demo", "--fixture", "y"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--post-comment", "--dry-run"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--fixture", "x", "--post-comment"]), /requires a live/);
   assert.throws(() => parseArgs(["--mode", "external"]), /must be one of/);
+});
+
+test("bundled demo works without a repository checkout", async () => {
+  let output = "";
+  const result = await main({
+    argv: ["--demo", "--mode", "heuristic", "--dry-run"],
+    stdout: { write(value) { output += value; } },
+  });
+  assert.deepEqual(result, { action: "reviewed", engine: "heuristic" });
+  assert.match(output, /## Summary of changes/);
 });
 
 test("normalizes and validates repository allowlist entries", () => {

@@ -18,28 +18,15 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies without lifecycle scripts
-        run: npm ci --ignore-scripts
-
       - name: Generate advisory report from GitHub metadata
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          node bin/codex-maintainer.js
-          --pr ${{ github.event.pull_request.html_url }}
-          --mode heuristic
-          --dry-run
-          --out review.md
+        id: review
+        uses: ./
+        with:
+          github_token: ${{ github.token }}
 
       - name: Upload advisory report
         uses: actions/upload-artifact@v7
         with:
           name: pull-request-report-${{ github.event.pull_request.number }}
-          path: review.md
+          path: ${{ steps.review.outputs.review_file }}
           if-no-files-found: error

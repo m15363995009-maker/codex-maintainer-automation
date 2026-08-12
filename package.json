@@ -1,15 +1,37 @@
 {
   "name": "codex-maintainer-automation",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A safe, deterministic GitHub pull request review assistant with optional OpenAI Responses API support.",
+  "author": "m15363995009-maker",
   "license": "MIT",
+  "keywords": [
+    "github-actions",
+    "pull-request",
+    "code-review",
+    "maintainer",
+    "open-source",
+    "openai"
+  ],
+  "homepage": "https://github.com/m15363995009-maker/codex-maintainer-automation#readme",
+  "bugs": {
+    "url": "https://github.com/m15363995009-maker/codex-maintainer-automation/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m15363995009-maker/codex-maintainer-automation.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "codex-maintainer": "./bin/codex-maintainer.js"
   },
   "files": [
     "bin",
+    "action",
+    "action.yml",
     "src",
-    "docs",
+    "docs/*.md",
     "fixtures",
     "LICENSE",
     "README.md",
@@ -22,8 +44,9 @@
     "test:smoke": "node bin/codex-maintainer.js --help",
     "test:version": "node bin/codex-maintainer.js --version",
     "test:fixture": "node bin/codex-maintainer.js --fixture fixtures/sample-pr.json --mode heuristic --dry-run",
+    "test:demo": "node bin/codex-maintainer.js --demo --mode heuristic --dry-run",
     "test:lifecycle-fixture": "node bin/codex-maintainer.js --fixture fixtures/project-lifecycle-pr.json --mode heuristic --dry-run",
-    "check": "npm test && npm run test:smoke && npm run test:version && npm run test:fixture && npm run test:lifecycle-fixture"
+    "check": "npm test && npm run test:smoke && npm run test:version && npm run test:fixture && npm run test:demo && npm run test:lifecycle-fixture"
   },
   "engines": {
     "node": ">=20"

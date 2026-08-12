@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0] - 2026-08-12
+
+- added a dependency-free, Marketplace-compatible JavaScript action that generates a read-only PR review in the workflow summary;
+- enforced the triggering repository allowlist and dry-run mode inside the action wrapper;
+- added action-event and workflow-output regression coverage;
+- added a copyable Marketplace quickstart with least-privilege permissions;
+- completed npm discovery metadata and public-package configuration;
+- added a repository social-preview asset for clearer discovery.
+
 ## [0.2.0] - 2026-08-12
 
 - paginated pull-request file metadata beyond the first 100 files, with the documented GitHub response limit of 3,000 files;
