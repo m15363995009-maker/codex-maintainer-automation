@@ -1,0 +1,20 @@
+{
+  "owner": "example",
+  "repo": "project-lifecycle",
+  "number": 41,
+  "htmlUrl": "https://github.com/example/project-lifecycle/pull/41",
+  "title": "Require quality evidence before closing a project",
+  "body": "Synthetic fixture for an offline maintainer pilot. All names, paths, identifiers, and changes are fictional.",
+  "author": "example-contributor",
+  "baseRef": "main",
+  "headRef": "closure-quality-gate",
+  "changedFiles": 3,
+  "additions": 24,
+  "deletions": 6,
+  "files": [
+    { "filename": "src/lifecycle-policy.js", "status": "modified", "additions": 12, "deletions": 4, "changes": 16 },
+    { "filename": "test/lifecycle-policy.test.js", "status": "added", "additions": 9, "deletions": 0, "changes": 9 },
+    { "filename": "docs/status-capsule.md", "status": "modified", "additions": 3, "deletions": 2, "changes": 5 }
+  ],
+  "diff": "diff --git a/src/lifecycle-policy.js b/src/lifecycle-policy.js\n--- a/src/lifecycle-policy.js\n+++ b/src/lifecycle-policy.js\n@@ -8,4 +8,8 @@\n-function canClose(project) { return project.workComplete; }\n+function canClose(project) {\n+  return project.workComplete\n+    && project.qualityEvidence === 'passed'\n+    && project.unresolvedItems.length === 0;\n+}\ndiff --git a/test/lifecycle-policy.test.js b/test/lifecycle-policy.test.js\nnew file mode 100644\n--- /dev/null\n+++ b/test/lifecycle-policy.test.js\n@@ -0,0 +1,3 @@\n+test('blocks closure without quality evidence', () => {\n+  assert.equal(canClose(incompleteEvidenceProject), false);\n+});\ndiff --git a/docs/status-capsule.md b/docs/status-capsule.md\n--- a/docs/status-capsule.md\n+++ b/docs/status-capsule.md\n@@ -3,2 +3,3 @@\n-Status: complete\n+Status: quality-check\n+Closure evidence: pending\n"
+}

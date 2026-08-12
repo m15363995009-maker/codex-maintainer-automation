@@ -1,6 +1,6 @@
 {
   "name": "codex-maintainer-automation",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A safe, deterministic GitHub pull request review assistant with optional OpenAI Responses API support.",
   "license": "MIT",
   "bin": {
@@ -9,6 +9,8 @@
   "files": [
     "bin",
     "src",
+    "docs",
+    "fixtures",
     "LICENSE",
     "README.md",
     "CONTRIBUTING.md",
@@ -20,7 +22,8 @@
     "test:smoke": "node bin/codex-maintainer.js --help",
     "test:version": "node bin/codex-maintainer.js --version",
     "test:fixture": "node bin/codex-maintainer.js --fixture fixtures/sample-pr.json --mode heuristic --dry-run",
-    "check": "npm test && npm run test:smoke && npm run test:version && npm run test:fixture"
+    "test:lifecycle-fixture": "node bin/codex-maintainer.js --fixture fixtures/project-lifecycle-pr.json --mode heuristic --dry-run",
+    "check": "npm test && npm run test:smoke && npm run test:version && npm run test:fixture && npm run test:lifecycle-fixture"
   },
   "engines": {
     "node": ">=20"

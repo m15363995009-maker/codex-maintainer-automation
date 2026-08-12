@@ -1,5 +1,7 @@
 const API_ROOT = "https://api.github.com";
 const API_VERSION = "2022-11-28";
+const FILES_PER_PAGE = 100;
+const MAX_FILE_PAGES = 30;
 
 class GithubApiError extends Error {
   constructor(message, { status, url, responseBody } = {}) {
@@ -152,9 +154,9 @@ async function fetchPullRequest(input, {
   const identity = parsePullRequestUrl(input);
   const base = `${apiRoot}/repos/${identity.owner}/${identity.repo}`;
   const pullUrl = `${base}/pulls/${identity.number}`;
-  const filesUrl = `${pullUrl}/files?per_page=100`;
+  const filesUrl = `${pullUrl}/files?per_page=${FILES_PER_PAGE}`;
 
-  const [pull, files, diff] = await Promise.all([
+  const [pull, firstFilesPage, diff] = await Promise.all([
     requestJson(pullUrl, { token, fetchImpl, timeoutMs }),
     requestJson(filesUrl, { token, fetchImpl, timeoutMs }),
     requestText(pullUrl, {
@@ -165,7 +167,28 @@ async function fetchPullRequest(input, {
     }),
   ]);
 
-  const apiFiles = Array.isArray(files) ? files : [];
+  const apiFiles = Array.isArray(firstFilesPage) ? [...firstFilesPage] : [];
+  const reportedFileCount = Number(pull?.changed_files);
+  const expectedFileCount = Number.isFinite(reportedFileCount) && reportedFileCount >= 0
+    ? Math.min(reportedFileCount, FILES_PER_PAGE * MAX_FILE_PAGES)
+    : FILES_PER_PAGE * MAX_FILE_PAGES;
+
+  for (
+    let page = 2;
+    apiFiles.length >= FILES_PER_PAGE
+      && apiFiles.length < expectedFileCount
+      && page <= MAX_FILE_PAGES;
+    page += 1
+  ) {
+    const nextPage = await requestJson(
+      `${filesUrl}&page=${page}`,
+      { token, fetchImpl, timeoutMs },
+    );
+    if (!Array.isArray(nextPage) || nextPage.length === 0) break;
+    apiFiles.push(...nextPage);
+    if (nextPage.length < FILES_PER_PAGE) break;
+  }
+
   const parsedFiles = parseDiffFiles(diff);
   const normalizedFiles = apiFiles.length
     ? apiFiles.map((file) => ({
@@ -195,7 +218,9 @@ async function fetchPullRequest(input, {
 
 module.exports = {
   API_ROOT,
+  FILES_PER_PAGE,
   GithubApiError,
+  MAX_FILE_PAGES,
   fetchPullRequest,
   parseDiffFiles,
   parsePullRequestUrl,
