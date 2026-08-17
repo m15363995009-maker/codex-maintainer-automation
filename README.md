@@ -12,7 +12,7 @@ The default engine is deterministic and runs without an API key. An optional Ope
 
 ## Current status
 
-Version `v0.3.0` adds a Marketplace-compatible, dependency-free JavaScript action and a publish-ready npm package while preserving the documented 3,000-file GitHub response limit. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
+Version `v0.4.0` adds schema-versioned JSON output for dashboards and automation consumers. It builds on the Marketplace-compatible, dependency-free JavaScript action from `v0.3.0` while preserving the documented 3,000-file GitHub response limit. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
 
 The CLI has one dated, public cross-project maintainer pilot on [`claude-builders-bounty` PR #6](https://github.com/m15363995009-maker/claude-builders-bounty/pull/6#issuecomment-5231633189). Both repositories have the same owner, so this is reproducible maintainer-workflow evidence, not external adoption.
 
@@ -40,7 +40,7 @@ permissions:
 
 steps:
   - name: Generate read-only PR review
-    uses: m15363995009-maker/codex-maintainer-automation@v0.3.0
+    uses: m15363995009-maker/codex-maintainer-automation@v0
     with:
       github_token: ${{ github.token }}
 ```
@@ -52,10 +52,20 @@ The action needs no checkout step and no API key in its default heuristic mode. 
 After the npm release, run a local fixture without a permanent install:
 
 ```bash
-npx codex-maintainer-automation@0.3.0 \
+npx codex-maintainer-automation@0.4.0 \
   --demo \
   --mode heuristic \
   --dry-run
+```
+
+For dashboards and other automation consumers, add `--json`. The JSON contract is versioned independently through `schemaVersion` and includes pull-request metadata, normalized files, risks, suggestions, confidence, and the original review Markdown. It deliberately omits the raw diff and pull-request body.
+
+```bash
+npx codex-maintainer-automation@0.4.0 \
+  --demo \
+  --mode heuristic \
+  --dry-run \
+  --json
 ```
 
 ## Local use

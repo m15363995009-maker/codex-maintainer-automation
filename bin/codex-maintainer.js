@@ -6,6 +6,7 @@ const packageJson = require("../package.json");
 const { assertRepositoryAllowed, normalizeRepository } = require("../src/allowlist");
 const { fetchPullRequest, parsePullRequestUrl } = require("../src/github");
 const { buildCommentBody, upsertReviewComment } = require("../src/comment");
+const { buildJsonReport, formatJsonReport } = require("../src/json-report");
 const { formatReview, reviewPullRequest } = require("../src/review");
 
 function printHelp() {
@@ -17,7 +18,8 @@ Options:
   --fixture <file>              Read a local synthetic pull request fixture
   --demo                        Run the bundled synthetic pull request demo
   --mode auto|openai|heuristic  Review engine. Default: auto
-  --out <file>                  Write Markdown output to a file
+  --out <file>                  Write the selected output format to a file
+  --json                        Emit stable schema-versioned JSON instead of Markdown
   --post-comment                Create or update one marked PR comment
   --dry-run                     Explicitly disable all GitHub writes
   --version                     Print the package version
@@ -41,6 +43,7 @@ function parseArgs(argv) {
     mode: "auto",
     postComment: false,
     dryRun: false,
+    json: false,
     allowRepos: [],
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -57,6 +60,7 @@ function parseArgs(argv) {
     else if (arg === "--demo") options.demo = true;
     else if (arg === "--mode") { options.mode = requiredValue(argv, index, "--mode"); index += 1; }
     else if (arg === "--out") { options.out = requiredValue(argv, index, "--out"); index += 1; }
+    else if (arg === "--json") options.json = true;
     else if (arg === "--post-comment") options.postComment = true;
     else if (arg === "--dry-run") options.dryRun = true;
     else throw new Error(`Unknown argument: ${arg}`);
@@ -111,7 +115,9 @@ async function main({
     model: env.OPENAI_MODEL,
     fetchImpl,
   });
-  const output = formatReview(result.markdown, result.engine, result.warning);
+  const output = options.json
+    ? formatJsonReport(buildJsonReport(pullRequest, result, { version: packageJson.version }))
+    : formatReview(result.markdown, result.engine, result.warning);
 
   if (options.out) {
     const destination = path.resolve(options.out);

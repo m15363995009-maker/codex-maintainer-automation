@@ -1,6 +1,6 @@
 {
   "name": "codex-maintainer-automation",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A safe, deterministic GitHub pull request review assistant with optional OpenAI Responses API support.",
   "author": "m15363995009-maker",
   "license": "MIT",
