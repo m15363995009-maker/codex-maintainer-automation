@@ -2,6 +2,8 @@
 
 `Codex Maintainer PR Review` is a read-only JavaScript action. It retrieves pull request metadata and changed-file content through GitHub's API, runs the deterministic heuristic reviewer by default, and writes the report to the workflow summary and a Markdown file. It never checks out or executes contributor-controlled code.
 
+[View the published `v0.4.0` Action on GitHub Marketplace](https://github.com/marketplace/actions/codex-maintainer-pr-review).
+
 ## Install
 
 Create `.github/workflows/codex-maintainer-review.yml` in the repository you want to review:
