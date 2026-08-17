@@ -7,6 +7,7 @@ const {
   normalizeRepository,
 } = require("../src/allowlist");
 const { requestOpenAIReview } = require("../src/openai");
+const { buildJsonReport, JSON_SCHEMA_VERSION } = require("../src/json-report");
 const {
   fetchPullRequest,
   MAX_FILE_PAGES,
@@ -287,16 +288,32 @@ test("CLI parsing keeps writes explicit", () => {
     mode: "auto",
     postComment: false,
     dryRun: true,
+    json: false,
     allowRepos: [],
     pr: "https://github.com/example/project/pull/1",
   });
   assert.equal(parseArgs(["--fixture", "fixtures/sample-pr.json"]).fixture, "fixtures/sample-pr.json");
   assert.equal(parseArgs(["--demo"]).demo, true);
+  assert.equal(parseArgs(["--demo", "--json"]).json, true);
   assert.throws(() => parseArgs(["--pr", "x", "--fixture", "y"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--demo", "--fixture", "y"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--post-comment", "--dry-run"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--fixture", "x", "--post-comment"]), /requires a live/);
   assert.throws(() => parseArgs(["--mode", "external"]), /must be one of/);
+});
+
+test("builds a stable JSON report without copying the raw diff", () => {
+  const markdown = createHeuristicReview(samplePull);
+  const report = buildJsonReport(samplePull, { markdown, engine: "heuristic" }, { version: "0.4.0" });
+  assert.equal(report.schemaVersion, JSON_SCHEMA_VERSION);
+  assert.equal(report.generator.version, "0.4.0");
+  assert.equal(report.source.repository, "example/project");
+  assert.equal(report.pullRequest.changedFiles, 2);
+  assert.equal(report.review.confidence.level, "High");
+  assert.ok(report.review.risks.length >= 1);
+  assert.ok(report.review.suggestions.length >= 1);
+  assert.equal(Object.hasOwn(report.pullRequest, "diff"), false);
+  assert.doesNotMatch(JSON.stringify(report), /old line/);
 });
 
 test("bundled demo works without a repository checkout", async () => {
@@ -307,6 +324,19 @@ test("bundled demo works without a repository checkout", async () => {
   });
   assert.deepEqual(result, { action: "reviewed", engine: "heuristic" });
   assert.match(output, /## Summary of changes/);
+});
+
+test("bundled demo emits parseable schema-versioned JSON", async () => {
+  let output = "";
+  const result = await main({
+    argv: ["--demo", "--mode", "heuristic", "--dry-run", "--json"],
+    stdout: { write(value) { output += value; } },
+  });
+  const report = JSON.parse(output);
+  assert.deepEqual(result, { action: "reviewed", engine: "heuristic" });
+  assert.equal(report.schemaVersion, JSON_SCHEMA_VERSION);
+  assert.equal(report.engine, "heuristic");
+  assert.match(report.review.summary, /This pull request changes/);
 });
 
 test("normalizes and validates repository allowlist entries", () => {

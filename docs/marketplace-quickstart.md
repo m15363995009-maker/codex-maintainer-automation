@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Generate read-only PR review
         id: review
-        uses: m15363995009-maker/codex-maintainer-automation@v0.3.0
+        uses: m15363995009-maker/codex-maintainer-automation@v0
         with:
           github_token: ${{ github.token }}
 
@@ -72,5 +72,5 @@ Do not use `pull_request_target` with untrusted workflow changes unless you unde
 After the npm release, run the bundled synthetic demo from any directory:
 
 ```bash
-npx codex-maintainer-automation@0.3.0 --demo --mode heuristic --dry-run
+npx codex-maintainer-automation@0.4.0 --demo --mode heuristic --dry-run --json
 ```

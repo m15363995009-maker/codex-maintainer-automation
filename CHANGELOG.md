@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2026-08-17
+
+- add a stable, schema-versioned `--json` output mode for dashboards and automation consumers;
+- include normalized pull-request metadata, files, review sections, confidence, engine, and warnings while omitting the raw diff and pull-request body;
+- add regression coverage for JSON parsing, schema versioning, and the bundled offline demo.
+
 ## [0.3.0] - 2026-08-12
 
 - added a dependency-free, Marketplace-compatible JavaScript action that generates a read-only PR review in the workflow summary;
