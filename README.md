@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/m15363995009-maker/codex-maintainer-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/m15363995009-maker/codex-maintainer-automation/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/m15363995009-maker/codex-maintainer-automation)](https://github.com/m15363995009-maker/codex-maintainer-automation/releases)
+[![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-published-2ea44f?logo=github)](https://github.com/marketplace/actions/codex-maintainer-pr-review)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 `codex-maintainer-automation` is a small GitHub-native assistant for open-source maintainers. It turns a pull request's metadata and diff into one structured review packet: what changed, what may be risky, and what still needs human attention.
@@ -12,7 +13,7 @@ The default engine is deterministic and runs without an API key. An optional Ope
 
 ## Current status
 
-Version `v0.4.0` adds schema-versioned JSON output for dashboards and automation consumers. It builds on the Marketplace-compatible, dependency-free JavaScript action from `v0.3.0` while preserving the documented 3,000-file GitHub response limit. The project has no claimed downloads, external users, dependents, or third-party pilot results yet; those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
+Version `v0.4.0` adds schema-versioned JSON output for dashboards and automation consumers. The dependency-free JavaScript action is now [publicly listed on GitHub Marketplace](https://github.com/marketplace/actions/codex-maintainer-pr-review) while preserving the documented 3,000-file GitHub response limit. The listing is a distribution channel, not evidence of adoption: the project has no claimed downloads, external users, dependents, or third-party pilot results yet, and those fields remain `not yet measured` until a dated source is recorded in [`docs/evidence-ledger.md`](docs/evidence-ledger.md).
 
 The CLI has one dated, public cross-project maintainer pilot on [`claude-builders-bounty` PR #6](https://github.com/m15363995009-maker/claude-builders-bounty/pull/6#issuecomment-5231633189). Both repositories have the same owner, so this is reproducible maintainer-workflow evidence, not external adoption.
 
@@ -45,7 +46,7 @@ steps:
       github_token: ${{ github.token }}
 ```
 
-The action needs no checkout step and no API key in its default heuristic mode. The Markdown report appears in the workflow summary. See the complete [Marketplace quickstart](docs/marketplace-quickstart.md), including artifact upload and optional OpenAI mode.
+The action needs no checkout step and no API key in its default heuristic mode. The Markdown report appears in the workflow summary. [Inspect the published Marketplace listing](https://github.com/marketplace/actions/codex-maintainer-pr-review) or see the complete [Marketplace quickstart](docs/marketplace-quickstart.md), including artifact upload and optional OpenAI mode.
 
 ## Use as an npm CLI
 
