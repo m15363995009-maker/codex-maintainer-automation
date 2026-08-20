@@ -20,6 +20,7 @@ Options:
   --mode auto|openai|heuristic  Review engine. Default: auto
   --out <file>                  Write the selected output format to a file
   --json                        Emit stable schema-versioned JSON instead of Markdown
+  --json-out <file>             Also write schema-versioned JSON while keeping Markdown output
   --post-comment                Create or update one marked PR comment
   --dry-run                     Explicitly disable all GitHub writes
   --version                     Print the package version
@@ -61,6 +62,7 @@ function parseArgs(argv) {
     else if (arg === "--mode") { options.mode = requiredValue(argv, index, "--mode"); index += 1; }
     else if (arg === "--out") { options.out = requiredValue(argv, index, "--out"); index += 1; }
     else if (arg === "--json") options.json = true;
+    else if (arg === "--json-out") { options.jsonOut = requiredValue(argv, index, "--json-out"); index += 1; }
     else if (arg === "--post-comment") options.postComment = true;
     else if (arg === "--dry-run") options.dryRun = true;
     else throw new Error(`Unknown argument: ${arg}`);
@@ -75,6 +77,9 @@ function parseArgs(argv) {
   if (options.postComment && options.dryRun) {
     throw new Error("--post-comment and --dry-run cannot be used together");
   }
+  if (options.json && options.jsonOut) {
+    throw new Error("--json-out cannot be combined with --json; use --out for JSON-only output");
+  }
   if (options.postComment && (options.fixture || options.demo)) throw new Error("--post-comment requires a live --pr");
   return options;
 }
@@ -86,6 +91,9 @@ async function main({
   stdout = process.stdout,
 } = {}) {
   const options = parseArgs(argv);
+  if (options.out && options.jsonOut && path.resolve(options.out) === path.resolve(options.jsonOut)) {
+    throw new Error("--out and --json-out must resolve to different files");
+  }
   if (options.help) { printHelp(); return { action: "help" }; }
   if (options.version) { stdout.write(`${packageJson.version}\n`); return { action: "version" }; }
   if (!options.pr && !options.fixture && !options.demo) {
@@ -115,14 +123,21 @@ async function main({
     model: env.OPENAI_MODEL,
     fetchImpl,
   });
-  const output = options.json
+  const markdownOutput = formatReview(result.markdown, result.engine, result.warning);
+  const jsonOutput = options.json || options.jsonOut
     ? formatJsonReport(buildJsonReport(pullRequest, result, { version: packageJson.version }))
-    : formatReview(result.markdown, result.engine, result.warning);
+    : "";
+  const output = options.json ? jsonOutput : markdownOutput;
 
   if (options.out) {
     const destination = path.resolve(options.out);
     await fs.mkdir(path.dirname(destination), { recursive: true });
     await fs.writeFile(destination, output, "utf8");
+  }
+  if (options.jsonOut) {
+    const jsonDestination = path.resolve(options.jsonOut);
+    await fs.mkdir(path.dirname(jsonDestination), { recursive: true });
+    await fs.writeFile(jsonDestination, jsonOutput, "utf8");
   }
   if (options.postComment) {
     const commentBody = buildCommentBody(result.markdown, result.engine, result.warning);

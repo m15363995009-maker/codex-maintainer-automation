@@ -32,6 +32,7 @@ test("runs the CLI in read-only mode and publishes safe workflow outputs", async
   const summaryPath = path.join(directory, "summary.md");
   const workflowOutputPath = path.join(directory, "output.txt");
   const requestedReportPath = path.join(directory, "review.md");
+  const requestedJsonPath = path.join(directory, "review.json");
   let invocation;
   const result = await runAction({
     env: {
@@ -41,6 +42,7 @@ test("runs the CLI in read-only mode and publishes safe workflow outputs", async
       INPUT_PR_URL: "https://github.com/example/project/pull/7",
       INPUT_MODE: "heuristic",
       INPUT_OUTPUT_FILE: requestedReportPath,
+      INPUT_JSON_OUTPUT_FILE: requestedJsonPath,
       INPUT_GITHUB_TOKEN: "test-token",
     },
     mainImpl: async (options) => {
@@ -56,11 +58,28 @@ test("runs the CLI in read-only mode and publishes safe workflow outputs", async
     "--mode", "heuristic",
     "--dry-run",
     "--out", path.resolve(requestedReportPath),
+    "--json-out", path.resolve(requestedJsonPath),
   ]);
   assert.equal(invocation.env.GITHUB_TOKEN, "test-token");
   assert.match(await fs.readFile(summaryPath, "utf8"), /Read-only report/);
   assert.match(await fs.readFile(workflowOutputPath, "utf8"), /engine=heuristic/);
+  assert.match(await fs.readFile(workflowOutputPath, "utf8"), /json_file=.*review\.json/);
   assert.equal(result.engine, "heuristic");
+  assert.equal(result.jsonFile, path.resolve(requestedJsonPath));
+});
+
+test("keeps Markdown and JSON action outputs on different paths", async () => {
+  await assert.rejects(
+    runAction({
+      env: {
+        GITHUB_REPOSITORY: "example/project",
+        INPUT_PR_URL: "https://github.com/example/project/pull/7",
+        INPUT_OUTPUT_FILE: "same-output",
+        INPUT_JSON_OUTPUT_FILE: "same-output",
+      },
+    }),
+    /must be different paths/,
+  );
 });
 
 test("removes line breaks from workflow output values", () => {

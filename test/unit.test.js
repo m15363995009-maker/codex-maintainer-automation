@@ -295,9 +295,11 @@ test("CLI parsing keeps writes explicit", () => {
   assert.equal(parseArgs(["--fixture", "fixtures/sample-pr.json"]).fixture, "fixtures/sample-pr.json");
   assert.equal(parseArgs(["--demo"]).demo, true);
   assert.equal(parseArgs(["--demo", "--json"]).json, true);
+  assert.equal(parseArgs(["--demo", "--json-out", "review.json"]).jsonOut, "review.json");
   assert.throws(() => parseArgs(["--pr", "x", "--fixture", "y"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--demo", "--fixture", "y"]), /cannot be used together/);
   assert.throws(() => parseArgs(["--post-comment", "--dry-run"]), /cannot be used together/);
+  assert.throws(() => parseArgs(["--demo", "--json", "--json-out", "review.json"]), /cannot be combined/);
   assert.throws(() => parseArgs(["--fixture", "x", "--post-comment"]), /requires a live/);
   assert.throws(() => parseArgs(["--mode", "external"]), /must be one of/);
 });
@@ -337,6 +339,45 @@ test("bundled demo emits parseable schema-versioned JSON", async () => {
   assert.equal(report.schemaVersion, JSON_SCHEMA_VERSION);
   assert.equal(report.engine, "heuristic");
   assert.match(report.review.summary, /This pull request changes/);
+});
+
+test("bundled demo writes Markdown and JSON from one review", async () => {
+  const fs = require("node:fs/promises");
+  const os = require("node:os");
+  const path = require("node:path");
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "codex-dual-output-"));
+  const markdownPath = path.join(directory, "review.md");
+  const jsonPath = path.join(directory, "review.json");
+  let output = "";
+  await main({
+    argv: [
+      "--demo", "--mode", "heuristic", "--dry-run",
+      "--out", markdownPath,
+      "--json-out", jsonPath,
+    ],
+    stdout: { write(value) { output += value; } },
+  });
+  const markdown = await fs.readFile(markdownPath, "utf8");
+  const report = JSON.parse(await fs.readFile(jsonPath, "utf8"));
+  assert.match(output, /## Summary of changes/);
+  assert.equal(output, markdown);
+  assert.equal(report.schemaVersion, JSON_SCHEMA_VERSION);
+  assert.equal(report.engine, "heuristic");
+});
+
+test("rejects colliding dual-output paths before writing", async () => {
+  const fs = require("node:fs/promises");
+  const os = require("node:os");
+  const path = require("node:path");
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "codex-output-collision-"));
+  const outputPath = path.join(directory, "review.out");
+  await assert.rejects(
+    main({
+      argv: ["--demo", "--dry-run", "--out", outputPath, "--json-out", outputPath],
+      stdout: { write() {} },
+    }),
+    /must resolve to different files/,
+  );
 });
 
 test("normalizes and validates repository allowlist entries", () => {

@@ -24,10 +24,16 @@ inputs:
     description: Markdown report path, relative to the workflow workspace unless absolute.
     required: false
     default: codex-maintainer-review.md
+  json_output_file:
+    description: Schema-versioned JSON report path, relative to the workflow workspace unless absolute.
+    required: false
+    default: codex-maintainer-review.json
 
 outputs:
   review_file:
     description: Absolute path to the generated Markdown report.
+  json_file:
+    description: Absolute path to the generated schema-versioned JSON report.
   engine:
     description: Review engine that produced the report.
 

@@ -1,7 +1,7 @@
 {
   "name": "codex-maintainer-automation",
-  "version": "0.4.0",
-  "description": "A safe, deterministic GitHub pull request review assistant with optional OpenAI Responses API support.",
+  "version": "0.5.0",
+  "description": "A read-only GitHub Action and CLI that turn pull requests into Markdown and schema-versioned JSON review packets.",
   "author": "m15363995009-maker",
   "license": "MIT",
   "keywords": [
@@ -10,7 +10,10 @@
     "code-review",
     "maintainer",
     "open-source",
-    "openai"
+    "openai",
+    "ai-code-review",
+    "workflow-automation",
+    "developer-productivity"
   ],
   "homepage": "https://github.com/m15363995009-maker/codex-maintainer-automation#readme",
   "bugs": {
