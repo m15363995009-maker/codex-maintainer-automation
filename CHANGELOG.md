@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0] - 2026-08-20
+
+- generate human-readable Markdown and schema-versioned JSON from one review with `--json-out`;
+- expose both report paths as GitHub Action outputs for summaries, artifacts, dashboards, and follow-on jobs;
+- reject colliding Markdown and JSON output paths before pull-request retrieval;
+- refocus the README on the maintainer problem, a 30-second Action install, and a real deterministic sample.
+- publish a source-linked Codex-assisted maintenance workflow with explicit human and evidence boundaries.
+
 ## [0.4.0] - 2026-08-17
 
 - add a stable, schema-versioned `--json` output mode for dashboards and automation consumers;

@@ -43,6 +43,10 @@ async function runAction({ env = process.env, fsImpl = fs, mainImpl = cliMain } 
   const prUrl = await resolvePullRequestUrl(env, fsImpl);
   const mode = readInput(env, "mode") || "heuristic";
   const outputFile = path.resolve(readInput(env, "output_file") || "codex-maintainer-review.md");
+  const jsonOutputFile = path.resolve(readInput(env, "json_output_file") || "codex-maintainer-review.json");
+  if (outputFile === jsonOutputFile) {
+    throw new Error("output_file and json_output_file must be different paths");
+  }
   const actionEnv = {
     ...env,
     GITHUB_TOKEN: readInput(env, "github_token") || env.GITHUB_TOKEN || "",
@@ -57,6 +61,7 @@ async function runAction({ env = process.env, fsImpl = fs, mainImpl = cliMain } 
       "--mode", mode,
       "--dry-run",
       "--out", outputFile,
+      "--json-out", jsonOutputFile,
     ],
     env: actionEnv,
     stdout: { write(value) { report += String(value); } },
@@ -68,10 +73,11 @@ async function runAction({ env = process.env, fsImpl = fs, mainImpl = cliMain } 
   }
   await appendWorkflowOutputs(env.GITHUB_OUTPUT, {
     review_file: outputFile,
+    json_file: jsonOutputFile,
     engine: result.engine,
   }, fsImpl);
 
-  return { ...result, reviewFile: outputFile, report };
+  return { ...result, reviewFile: outputFile, jsonFile: jsonOutputFile, report };
 }
 
 if (require.main === module) {
