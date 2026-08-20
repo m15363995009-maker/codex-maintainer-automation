@@ -43,6 +43,14 @@ body:
     validations:
       required: true
   - type: input
+    id: project_version
+    attributes:
+      label: codex-maintainer-automation version
+      description: Use an exact release such as v0.5.0 so the trial can be reproduced.
+      placeholder: v0.5.0
+    validations:
+      required: true
+  - type: input
     id: public_pr
     attributes:
       label: Public pull request URL
@@ -76,8 +84,8 @@ body:
   - type: textarea
     id: usefulness
     attributes:
-      label: Was the report useful?
-      description: Explain why or why not. Negative feedback is welcome.
+      label: Were the Markdown and JSON reports useful?
+      description: Explain which output helped, what did not, and why. Negative feedback is welcome.
     validations:
       required: true
   - type: textarea
