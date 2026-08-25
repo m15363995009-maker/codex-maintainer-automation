@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2026-08-21
+
+- normalize the `codex-maintainer` binary path so npm 11 keeps the executable in the published manifest;
+- add regression coverage for the stable binary name, package-relative target, and Node.js shebang.
+
 ## [0.5.0] - 2026-08-20
 
 - generate human-readable Markdown and schema-versioned JSON from one review with `--json-out`;
