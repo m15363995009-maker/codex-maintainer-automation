@@ -18,4 +18,6 @@ The GitHub report workflow checks out only trusted base-branch code and uses rea
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a suspected vulnerability. Use GitHub's private security advisory flow after the repository is created, or contact the maintainer privately through the verified profile. Include a minimal reproduction, affected version or commit, impact, and a suggested mitigation. Redact credentials and private code.
+Do not open a public issue containing vulnerability details. Use the repository's [private vulnerability reporting form](https://github.com/m15363995009-maker/codex-maintainer-automation/security/advisories/new). Include a minimal reproduction, affected version or commit, impact, and a suggested mitigation. Redact credentials and private code.
+
+If the private form is unavailable, open a public issue asking the maintainer for a private contact method, but do not include vulnerability details in that issue.
