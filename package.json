@@ -1,6 +1,6 @@
 {
   "name": "codex-maintainer-automation",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A read-only GitHub Action and CLI that turn pull requests into Markdown and schema-versioned JSON review packets.",
   "author": "m15363995009-maker",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "access": "public"
   },
   "bin": {
-    "codex-maintainer": "./bin/codex-maintainer.js"
+    "codex-maintainer": "bin/codex-maintainer.js"
   },
   "files": [
     "bin",
